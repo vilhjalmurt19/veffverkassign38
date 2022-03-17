@@ -40,21 +40,85 @@ let genres = [
     { id: '1', genreName: "Classic"}
 ];
 
+let nextTuneId = 4
+
 //Your endpoints go here
 //tunes
-app.get('/api/v1/tunes', (req, res) => {
-    res.status(200).send('Hello World!');
+app.get('/api/v1/tunes', (req, res) => {
+    res.status(200).send('Hello World!');
 });
 
 app.get('/api/v1/genres/:genreID/tunes/:tuneID/',(req,res) =>{
-    res.status(200).send('Hello World!')
+    for (let i=0; i<genres.length;i++) {
+        if (genres[i].id == req.params.genreID) {
+            for (let k=0;k<tunes.length;k++) {
+                if (tunes[k].id == req.params.tuneID) {
+                    res.status(200).json(tunes[k]);
+                    return;
+                }
+            }
+            res.status(404).json({'message': "Tune with id " + req.params.tuneID + " does not exist for genre with id " + req.params.genreID})
+        }
+    }
+    res.status(404).json({'message': "Genre with id " + req.params.genreID + " does not exist"})
 });
+
 app.post('/api/v1/genres/:genreID/tunes/',(req,res) =>{
-    res.status(200).send('Hello World!')
+    if (req.body === undefined || req.body.name === undefined || req.body.content === undefined) {
+        return res.status(400).json({'message': "Name and content fields are required in the request body."});
+    } else {
+        if (isNaN(Number(req.params.genreID))) { // genre doesn't exist
+            return res.status(400).json({'message': "Genre with id " + req.params.genreID + " does not exist"});
+        }
+        // if content is empty return error
+        if (req.body.content.length < 1) {
+            return res.status(400).json({'message': "The content attribute must be a non-empty array"});
+        }
+        // iterate through content
+        // if any value is invalid return error message
+        for (let i=0;i<req.body.content.length;i++) {
+            if (req.body.content[i].note === undefined || req.body.content[i].timing === undefined || req.body.content[i].duration === undefined ) {
+                return res.status(400).json({'message': "The objects of the content attribute must have the note, timing, and duration attributes"});
+            }
+        }
+        let newTune = {id: nextTuneId, name: req.body.name, genreId: req.params.genreID, content: req.body.content};
+        tunes.push(newTune);
+        nextTuneId++;
+        res.status(201).json(newTune);
+    }
 });
+// req.body.name req.body.genreId req.body.content
 app.patch('/api/v1/genres/:genreID/tunes/:tuneID/',(req,res) =>{
-    res.status(200).send('Hello World!')
+    if (req.body === undefined || (req.body.name === undefined && req.body.genreId === undefined && req.body.content === undefined )) {
+        return res.status(400).json({'message': "Name, genreId and content fields are required in the request body."});
+    }
+    if (req.body.id !== undefined) {
+        return res.status(400).json({'message': "The id attribute cannot be updated"});
+    }
+    // check if tune exists
+    for (let i=0; i<genres.length;i++) {
+        if (genres[i].id == req.params.genreID) {
+            for (let k=0;k<tunes.length;k++) {
+                if (tunes[k].id == req.params.tuneID) {
+                    if (req.body.name !== undefined) {
+                        tunes[k].name = req.body.name;
+                    }
+                    if (req.body.genreId !== undefined) {
+                        tunes[k].genreId = req.body.genreId;
+                    }
+                    if (req.body.content !== undefined) {
+                        tunes[k].content = req.body.content;
+                    }
+                    res.status(200).json(tunes[k]);
+                    return;
+                }
+            }
+            res.status(404).json({'message': "Tune with id " + req.params.tuneID + " does not exist for genre with id " + req.params.genreID})
+        }
+    }
+    res.status(404).json({'message': "Genre with id " + req.params.genreID + " does not exist"})
 });
+
 app.get('/api/v1/genres/',(req,res) =>{
     res.status(200).send('Hello World!')
 });
