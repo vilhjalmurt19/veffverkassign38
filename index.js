@@ -111,40 +111,41 @@ app.patch('/api/v1/genres/:genreID/tunes/:tuneID/',(req,res) =>{
     if (req.body.id !== undefined) {
         return res.status(400).json({'message': "The id attribute cannot be updated"});
     }
-    if (req.body.content.length < 1) {
-        return res.status(400).json({'message': "The content attribute must be a non-empty array"});
-    }
+    
     // iterate through content
     // if any value is invalid return error message
-    for (let i=0;i<req.body.content.length;i++) {
-        if (req.body.content[i].note === undefined || req.body.content[i].timing === undefined || req.body.content[i].duration === undefined ) {
-            return res.status(400).json({'message': "The objects of the content attribute must have the note, timing, and duration attributes"});
-        }
-    }
+    
     // check if tune exists
     for (let i=0; i<genres.length;i++) {
         if (genres[i].id == req.params.genreID) {
             for (let k=0;k<tunes.length;k++) {
                 if (tunes[k].id == req.params.tuneID) {
-                    console.log('tune found and exists')
                     if (req.body.name !== undefined) {
                         tunes[k].name = req.body.name;
                     }
                     if (req.body.genreId !== undefined) {
                         if(isNaN(Number(req.body.genreId)) || (Number(req.body.genreId) >= nextGenreId || Number(req.body.genreId) < 0)){
-                            return res.status(400).json({'message': "Genre with id " + req.body.genreID + " does not exist"})
+                            return res.status(400).json({'message': "Genre with id " + req.body.genreId + " does not exist"})
                         }
-                        tunes[k].genreId = req.body.genreId;
+                        tunes[k].genreId = String(req.body.genreId);
                     }
                     if (req.body.content !== undefined) {
+                        if (req.body.content.length < 1) {
+                            return res.status(400).json({'message': "The content attribute must be a non-empty array"});
+                        }
+                        for (let i=0;i<req.body.content.length;i++) {
+                            if (req.body.content[i].note === undefined || req.body.content[i].timing === undefined || req.body.content[i].duration === undefined ) {
+                                return res.status(400).json({'message': "The objects of the content attribute must have the note, timing, and duration attributes"});
+                            }
+                        }
                         tunes[k].content = req.body.content;
                     }
                     res.status(200).json(tunes[k]);
                     return;
                 }
             }
+            res.status(404).json({'message': "Tune with id " + req.params.tuneID + " does not exist for genre with id " + req.params.genreID})
         }
-        res.status(404).json({'message': "Tune with id " + req.params.tuneID + " does not exist for genre with id " + req.params.genreID})
     }
     res.status(404).json({'message': "Genre with id " + req.params.genreID + " does not exist"})
 });
