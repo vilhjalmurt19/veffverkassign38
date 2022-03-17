@@ -60,7 +60,11 @@ app.get('/api/v1/tunes', (req, res) => {
             res.status(200).json([]);
         }
     }else{
-        res.status(200).json(tunes);
+        var shortTunes = []
+        for (i=0;i<tunes.length;i++) {
+            shortTunes.push({id: tunes[i].id, name: tunes[i].name, genreId: tunes[i].genreId })
+        }
+        res.status(200).json(shortTunes);
     }
 });
 
@@ -177,7 +181,7 @@ app.post('/api/v1/genres/',(req,res) =>{
 app.delete('/api/v1/genres/:genreId',(req,res) =>{
     for (let i=0;i<tunes.length;i++){
         if(tunes[i].genreId == req.params.genreId){
-            return res.status(400).json({'message': "Cannot delete Tunes exists in Genre"});
+            return res.status(400).json({'message': "Cannot delete genre with id " + req.params.genreId + ", tunes exists in Genre"});
         }
     } 
     for (let i=0;i<genres.length;i++) {
