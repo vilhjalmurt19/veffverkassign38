@@ -106,7 +106,7 @@ app.post('/api/v1/genres/:genreID/tunes/',(req,res) =>{
 
 app.patch('/api/v1/genres/:genreID/tunes/:tuneID/',(req,res) =>{
     if (req.body === undefined || (req.body.name === undefined && req.body.genreId === undefined && req.body.content === undefined )) {
-        return res.status(400).json({'message': "Name, genreId and content fields are required in the request body."});
+        return res.status(400).json({'message': "Name, genreId and content fields cannot all be empty in the request body."});
     }
     if (req.body.id !== undefined) {
         return res.status(400).json({'message': "The id attribute cannot be updated"});
@@ -126,6 +126,7 @@ app.patch('/api/v1/genres/:genreID/tunes/:tuneID/',(req,res) =>{
         if (genres[i].id == req.params.genreID) {
             for (let k=0;k<tunes.length;k++) {
                 if (tunes[k].id == req.params.tuneID) {
+                    console.log('tune found and exists')
                     if (req.body.name !== undefined) {
                         tunes[k].name = req.body.name;
                     }
