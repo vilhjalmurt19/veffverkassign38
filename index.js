@@ -135,7 +135,6 @@ app.patch('/api/v1/genres/:genreID/tunes/:tuneID/',(req,res) =>{
                         }
                         tunes[k].genreId = req.body.genreId;
                     }
-                    }
                     if (req.body.content !== undefined) {
                         tunes[k].content = req.body.content;
                     }
@@ -143,8 +142,9 @@ app.patch('/api/v1/genres/:genreID/tunes/:tuneID/',(req,res) =>{
                     return;
                 }
             }
-            res.status(404).json({'message': "Tune with id " + req.params.tuneID + " does not exist for genre with id " + req.params.genreID})
         }
+        res.status(404).json({'message': "Tune with id " + req.params.tuneID + " does not exist for genre with id " + req.params.genreID})
+    }
     res.status(404).json({'message': "Genre with id " + req.params.genreID + " does not exist"})
 });
 
